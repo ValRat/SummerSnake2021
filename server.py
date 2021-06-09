@@ -18,7 +18,7 @@ class Battlesnake(object):
         # TIP: If you open your Battlesnake URL in browser you should see this data
         return {
             "apiversion": "1",
-            "author": "",  # TODO: Your Battlesnake Username
+            "author": "valsnake",  # TODO: Your Battlesnake Username
             "color": "#888888",  # TODO: Personalize
             "head": "default",  # TODO: Personalize
             "tail": "default",  # TODO: Personalize
@@ -48,7 +48,7 @@ class Battlesnake(object):
         move = random.choice(possible_moves)
 
         print(f"MOVE: {move}")
-        return {"move": move}
+        return {"move": "right"}
 
     @cherrypy.expose
     @cherrypy.tools.json_in()
@@ -65,7 +65,7 @@ if __name__ == "__main__":
     server = Battlesnake()
     cherrypy.config.update({"server.socket_host": "0.0.0.0"})
     cherrypy.config.update(
-        {"server.socket_port": int(os.environ.get("PORT", "8080")),}
+        {"server.socket_port": int(os.environ.get("PORT", "8081")),}
     )
     print("Starting Battlesnake Server...")
     cherrypy.quickstart(server)
