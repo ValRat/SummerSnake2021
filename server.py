@@ -3,6 +3,11 @@ import random
 
 import cherrypy
 
+from common.game_object_parser import GameObjectFactory
+from common.game_objects import Game, Snake, Board
+
+from wall_avoidance_snake.brain import move_to_valid
+
 """
 This is a simple Battlesnake server written in Python.
 For instructions see https://github.com/BattlesnakeOfficial/starter-snake-python/README.md
@@ -43,12 +48,14 @@ class Battlesnake(object):
         # TODO: Use the information in cherrypy.request.json to decide your next move.
         data = cherrypy.request.json
 
+        board = GameObjectFactory.parse_board(data["board"])
+        my_snake = GameObjectFactory.parse_snake(data["you"])
+
         # Choose a random direction to move in
-        possible_moves = ["up", "down", "left", "right"]
-        move = random.choice(possible_moves)
+        move = move_to_valid(my_snake, board)
 
         print(f"MOVE: {move}")
-        return {"move": "right"}
+        return {"move": move.lower()}
 
     @cherrypy.expose
     @cherrypy.tools.json_in()
