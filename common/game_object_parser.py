@@ -10,9 +10,14 @@ class GameObjectFactory:
         height = values_dict["height"]
         width = values_dict["width"]
         food = GameObjectFactory.parse_food(values_dict["food"])
-        # food = GameObjectFactory.parse_food(values_dict["hazards"])
+        hazards = None
+
+        if "hazards" in values_dict:
+            hazards = values_dict["hazards"]
+
+        #  hazards = GameObjectFactory.parse_food(values_dict["hazards"])
         snakes = GameObjectFactory.parse_snakes(values_dict["snakes"])
-        return Board(height, width, food, snakes=snakes, hazards=None)
+        return Board(height, width, food, hazards=hazards, snakes=snakes)
 
     @staticmethod
     def parse_snake(snake):

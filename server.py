@@ -6,7 +6,7 @@ import cherrypy
 from common.game_object_parser import GameObjectFactory
 from common.game_objects import Game, Snake, Board
 
-from wall_avoidance_snake.brain import move_to_valid
+from simple_challenge_snake.brain import move_to_valid
 
 """
 This is a simple Battlesnake server written in Python.
@@ -24,9 +24,9 @@ class Battlesnake(object):
         return {
             "apiversion": "1",
             "author": "valsnake",  # TODO: Your Battlesnake Username
-            "color": "#888888",  # TODO: Personalize
-            "head": "default",  # TODO: Personalize
-            "tail": "default",  # TODO: Personalize
+            "color": "#39FF14",  # TODO: Personalize
+            "head": "gamer",  # TODO: Personalize
+            "tail": "bolt",  # TODO: Personalize
         }
 
     @cherrypy.expose
