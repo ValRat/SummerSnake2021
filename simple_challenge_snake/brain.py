@@ -3,7 +3,7 @@ from typing import List, Tuple
 
 from common.game_objects import Game, Snake, Board, Direction
 from common.algos import a_star
-from common.point_utils import get_all_valid_neighbours, get_manhattan_distance
+from common.point_utils import get_all_valid_neighbours, get_manhattan_distance, get_all_neighbours
 
 def move_to_valid(me: Snake, board: Board) -> str:
   # Avoid corners
@@ -13,7 +13,7 @@ def move_to_valid(me: Snake, board: Board) -> str:
 
 
   # Ends up colliding with itself a lot... have to program a better heuristic lol
-  hazards = me.body
+  hazards = []
 
   # Avoid other snakes
   for others in board.snakes: 
@@ -27,11 +27,19 @@ def move_to_valid(me: Snake, board: Board) -> str:
   def in_hazard_sauce(coordinate: Tuple[int, int]) -> bool:
     return coordinate in board.hazards
 
+  def in_bigger_snake_striking_range(coordinate: Tuple[int, int]) -> bool: 
+    other_snakes = list(filter(lambda x : x.name != me.name, board.snakes))
+    bigger_snakes = list(filter(lambda x: len(x.body) >= len(me.body), other_snakes))
+    bigger_snakes_potential_space_array = map(lambda x : get_all_neighbours(x.head), bigger_snakes)
+    bigger_snakes_potential_space: List[Tuple[int, int]] = [item for sublist in bigger_snakes_potential_space_array for item in sublist]
+    return coordinate in bigger_snakes_potential_space
+
   # Make it more expensive to straddle edges and being in the hp draining zone
   def heuristic(coordinate: Tuple[int,int]):
     cost = 0
     cost += 5 if is_edge(coordinate) else 0
     cost += 2 if in_hazard_sauce(coordinate) else 0
+    cost += 100 if in_bigger_snake_striking_range(coordinate) else 0
     return cost
 
   

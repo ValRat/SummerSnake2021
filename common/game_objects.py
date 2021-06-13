@@ -21,6 +21,9 @@ class Snake:
     self.shout = shout
     self.squad = squad
 
+  def __str__(self):
+    return f'Name: {self.name}, Body: {self.body}'
+
 
 
 class Board: 
