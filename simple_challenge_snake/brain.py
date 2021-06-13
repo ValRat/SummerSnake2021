@@ -34,15 +34,6 @@ def move_to_valid(me: Snake, board: Board) -> str:
     cost += 2 if in_hazard_sauce(coordinate) else 0
     return cost
 
-  def closest_food_item(coordinate: Tuple[int, int], food: List[Tuple[int,int]]) -> Tuple[int, int]:
-    minimum_distance = float('inf')
-    closest_food = food[0]
-    for nibble in food:
-      distance_to_nibble = get_manhattan_distance(coordinate, nibble)
-      if distance_to_nibble < minimum_distance:
-        closest_food = nibble
-        minimum_distance = distance_to_nibble
-    return closest_food
   
   # First food item
   # TODO: Closest food item?
@@ -54,7 +45,7 @@ def move_to_valid(me: Snake, board: Board) -> str:
   # Try and use the game_id for this
   # i.e. become stateful
 
-  target = closest_food_item(me.head, board.food)
+  target = best_food_heuristic(me, board)
   next_step = (0, 0)
 
   try: 
@@ -73,8 +64,32 @@ def move_to_valid(me: Snake, board: Board) -> str:
 
   return get_direction(head_coordinate, next_step)
 
+def best_food_heuristic(me: Snake, board: Board) -> Tuple[int, int]:
+  if me.health < 30: 
+    # Avoid food that is in the hazard sauce
+    def not_in_sauce(coord: Tuple[int, int]) -> bool:
+      return coord not in board.hazards
+    safe_food = list(filter(not_in_sauce, board.food))
+    if len(safe_food) > 0:
+      return closest_food_item(me.head, safe_food)
+
+  # No choice
+  return closest_food_item(me.head, board.food)
+
+def closest_food_item(coordinate: Tuple[int, int], food: List[Tuple[int,int]]) -> Tuple[int, int]:
+  minimum_distance = float('inf')
+  closest_food = food[0]
+  for nibble in food:
+    distance_to_nibble = get_manhattan_distance(coordinate, nibble)
+    if distance_to_nibble < minimum_distance:
+      closest_food = nibble
+      minimum_distance = distance_to_nibble
+  return closest_food
 
 def seek_food_simple(coordinates: List[Tuple[int, int]], food: List[Tuple[int,int]]) -> Tuple[int, int]:
+  if len(coordinates) == 0: 
+    print(f'No possible coordinates')
+    return (0, 0)
   # Find smallest distance between food and coordinate
   closest_coordinate_to_food = coordinates[0]
   shortest_distance = float('inf')
