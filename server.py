@@ -6,7 +6,7 @@ import cherrypy
 from common.game_object_parser import GameObjectFactory
 from common.game_objects import Game, Snake, Board
 
-from simple_challenge_snake.brain import move_to_valid
+from summer_circuit_snake.brain import move_to_valid
 
 """
 This is a simple Battlesnake server written in Python.
