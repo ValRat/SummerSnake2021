@@ -13,7 +13,7 @@ class GameObjectFactory:
         hazards = None
 
         if "hazards" in values_dict:
-            hazards = values_dict["hazards"]
+            hazards = GameObjectFactory.parse_coordinates(values_dict["hazards"])
 
         #  hazards = GameObjectFactory.parse_food(values_dict["hazards"])
         snakes = GameObjectFactory.parse_snakes(values_dict["snakes"])
