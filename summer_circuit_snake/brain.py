@@ -1,16 +1,16 @@
 import random
-from typing import List, Tuple
+from typing import List, Tuple, Callable
 
 from common.game_objects import Game, Snake, Board, Direction
 from common.algos import a_star
 from common.point_utils import get_all_valid_neighbours, get_manhattan_distance, get_all_neighbours
 
 def move_to_valid(me: Snake, board: Board) -> str:
+
   # Avoid corners
   # Should try and avoid corners if possible somewhat, maybe if it's the only possible option we keep it...
   # hazards = [(0,0), (board.width - 1, 0), (0, board.height - 1), (board.width - 1, board.height - 1) ]
   # hazards.extend(me.body)
-
 
   # Ends up colliding with itself a lot... have to program a better heuristic lol
   hazards = []
@@ -45,7 +45,7 @@ def move_to_valid(me: Snake, board: Board) -> str:
       cost += 50 if in_hazard_sauce(coordinate) else 0
     else:
       cost += 25 if in_hazard_sauce(coordinate) else 0
-    cost += 10 if in_bigger_snake_striking_range(coordinate) else 0
+    cost += 50 if in_bigger_snake_striking_range(coordinate) else 0
     cost += 5 if is_claustrophobic(coordinate) else 0
     return cost
 
@@ -59,8 +59,12 @@ def move_to_valid(me: Snake, board: Board) -> str:
   # iteratively follow get_path and not have to recalculate everything again
   # Try and use the game_id for this
   # i.e. become stateful
-  target = best_food_heuristic(me, board)
 
+  # Or not be greedy, i.e. try to just avoid getting into a bad position
+  # If you're not hungry, this is ugly probably reorganise
+  neighbours = get_all_valid_neighbours(head_coordinate, hazards, board.height, board.width)
+
+  target = find_best_open_space(neighbours, heuristic) if me.health > 50 else best_food_heuristic(me, board)
   next_step = (0, 0)
 
   try: 
@@ -68,7 +72,6 @@ def move_to_valid(me: Snake, board: Board) -> str:
     next_step = get_path[1]
   except Exception:
     # A* failed to find path, find closest valid coordinate
-    neighbours = get_all_valid_neighbours(head_coordinate, hazards, board.height, board.width)
     next_step = seek_food_simple(neighbours, board.food)
   # print(f'Current path: {"".join(map(lambda tpl: str(tpl), get_path))}')
   # print(f'Next step: {next_step}')
@@ -90,6 +93,21 @@ def best_food_heuristic(me: Snake, board: Board) -> Tuple[int, int]:
 
   # No choice
   return closest_food_item(me.head, board.food)
+
+def find_best_open_space(coordinates: List[Tuple[int, int]], h: Callable) -> Tuple[int, int] :
+  neighbour_with_lowest_cost = coordinates[0]
+  lowest_cost = h(coordinates[0])
+  for neighbour in coordinates:
+    neighbour_cost = h(neighbour)
+    print(f'Analyzing: {neighbour}, with cost: {neighbour_cost}')
+
+    if neighbour_cost < lowest_cost:
+      neighbour_with_lowest_cost = neighbour
+      lowest_cost = neighbour_cost
+  print(f'Best open space: {neighbour_with_lowest_cost}, with cost: {lowest_cost}')
+  return neighbour_with_lowest_cost
+
+
 
 def closest_food_item(coordinate: Tuple[int, int], food: List[Tuple[int,int]]) -> Tuple[int, int]:
   minimum_distance = float('inf')
