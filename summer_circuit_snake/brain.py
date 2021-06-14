@@ -64,7 +64,8 @@ def move_to_valid(me: Snake, board: Board) -> str:
   # If you're not hungry, this is ugly probably reorganise
   neighbours = get_all_valid_neighbours(head_coordinate, hazards, board.height, board.width)
 
-  target = find_best_open_space(neighbours, heuristic) if me.health > 50 else best_food_heuristic(me, board)
+  # target = find_best_open_space(neighbours, heuristic) if me.health > 50 else best_food_heuristic(me, board)
+  target = best_food_heuristic(me, board)
   next_step = (0, 0)
 
   try: 
