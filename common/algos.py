@@ -40,7 +40,7 @@ def reconstruct_path(cameFrom: Dict[Tuple[int, int], Tuple[int, int]], current: 
         total_path.append(current)
     return list(reversed(total_path))
 
-# This is dumb, optimize if needed
+# This is dumb, optimize if needed, required since we overrode __eq__ I think
 def minheap_contains(heap: List[PointWithCost], point: Tuple[int, int]) -> bool:
     return point in map(lambda p : p.point, heap)
 
