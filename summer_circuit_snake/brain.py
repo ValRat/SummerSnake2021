@@ -33,13 +33,20 @@ def move_to_valid(me: Snake, board: Board) -> str:
     bigger_snakes_potential_space_array = map(lambda x : get_all_neighbours(x.head), bigger_snakes)
     bigger_snakes_potential_space: List[Tuple[int, int]] = [item for sublist in bigger_snakes_potential_space_array for item in sublist]
     return coordinate in bigger_snakes_potential_space
-
-  # Make it more expensive to straddle edges and being in the hp draining zone
+  
+  def is_claustrophobic(coordinate: Tuple[int, int]) -> bool:
+    surrounding = get_all_valid_neighbours(coordinate, hazards, board.height, board.width)
+    return len(surrounding) <= 2
+    
   def heuristic(coordinate: Tuple[int,int]):
     cost = 0
     cost += 5 if is_edge(coordinate) else 0
-    cost += 2 if in_hazard_sauce(coordinate) else 0
-    cost += 100 if in_bigger_snake_striking_range(coordinate) else 0
+    if (me.health < 70):
+      cost += 50 if in_hazard_sauce(coordinate) else 0
+    else:
+      cost += 25 if in_hazard_sauce(coordinate) else 0
+    cost += 10 if in_bigger_snake_striking_range(coordinate) else 0
+    cost += 5 if is_claustrophobic(coordinate) else 0
     return cost
 
   
@@ -52,8 +59,8 @@ def move_to_valid(me: Snake, board: Board) -> str:
   # iteratively follow get_path and not have to recalculate everything again
   # Try and use the game_id for this
   # i.e. become stateful
-
   target = best_food_heuristic(me, board)
+
   next_step = (0, 0)
 
   try: 
