@@ -4,6 +4,7 @@ from typing import List, Tuple, Callable
 from common.game_objects import Game, Snake, Board, Direction
 from common.algos import a_star
 from common.point_utils import get_all_valid_neighbours, get_manhattan_distance, get_all_neighbours
+from common.heuristics import is_edge, in_hazard_sauce, in_bigger_snake_striking_range
 
 def move_to_valid(me: Snake, board: Board) -> str:
 
@@ -20,32 +21,22 @@ def move_to_valid(me: Snake, board: Board) -> str:
     hazards.extend(others.body)
   
   head_coordinate = me.head
-
-  def is_edge(coordinate: Tuple[int, int]) ->  bool:
-    return coordinate[0] == 0 or coordinate[0] == board.width - 1 or coordinate[1] == 0 or coordinate[1] == board.height - 1
-  
-  def in_hazard_sauce(coordinate: Tuple[int, int]) -> bool:
-    return coordinate in board.hazards
-
-  def in_bigger_snake_striking_range(coordinate: Tuple[int, int]) -> bool: 
-    other_snakes = list(filter(lambda x : x.name != me.name, board.snakes))
-    bigger_snakes = list(filter(lambda x: len(x.body) >= len(me.body), other_snakes))
-    bigger_snakes_potential_space_array = map(lambda x : get_all_neighbours(x.head), bigger_snakes)
-    bigger_snakes_potential_space: List[Tuple[int, int]] = [item for sublist in bigger_snakes_potential_space_array for item in sublist]
-    return coordinate in bigger_snakes_potential_space
   
   def is_claustrophobic(coordinate: Tuple[int, int]) -> bool:
     surrounding = get_all_valid_neighbours(coordinate, hazards, board.height, board.width)
     return len(surrounding) <= 2
     
+  # TODO: Heuristic here isn't academically correct? Should represent
+  #       the estimated cost from coordinate to the goal
+  #       rather than how expensive the coordinate is to "exist" in
   def heuristic(coordinate: Tuple[int,int]):
     cost = 0
-    cost += 5 if is_edge(coordinate) else 0
+    cost += 5 if is_edge(coordinate, board) else 0
     if (me.health < 70):
-      cost += 50 if in_hazard_sauce(coordinate) else 0
+      cost += 50 if in_hazard_sauce(coordinate, board) else 0
     else:
-      cost += 25 if in_hazard_sauce(coordinate) else 0
-    cost += 50 if in_bigger_snake_striking_range(coordinate) else 0
+      cost += 25 if in_hazard_sauce(coordinate, board) else 0
+    cost += 50 if in_bigger_snake_striking_range(coordinate, me, board) else 0
     cost += 5 if is_claustrophobic(coordinate) else 0
     return cost
 
@@ -85,30 +76,17 @@ def move_to_valid(me: Snake, board: Board) -> str:
 
 def best_food_heuristic(me: Snake, board: Board) -> Tuple[int, int]:
   if me.health < 30: 
+
     # Avoid food that is in the hazard sauce
     def not_in_sauce(coord: Tuple[int, int]) -> bool:
-      return coord not in board.hazards
+      return not in_hazard_sauce(coord, board)
+
     safe_food = list(filter(not_in_sauce, board.food))
     if len(safe_food) > 0:
       return closest_food_item(me.head, safe_food)
 
   # No choice
   return closest_food_item(me.head, board.food)
-
-def find_best_open_space(coordinates: List[Tuple[int, int]], h: Callable) -> Tuple[int, int] :
-  neighbour_with_lowest_cost = coordinates[0]
-  lowest_cost = h(coordinates[0])
-  for neighbour in coordinates:
-    neighbour_cost = h(neighbour)
-    print(f'Analyzing: {neighbour}, with cost: {neighbour_cost}')
-
-    if neighbour_cost < lowest_cost:
-      neighbour_with_lowest_cost = neighbour
-      lowest_cost = neighbour_cost
-  print(f'Best open space: {neighbour_with_lowest_cost}, with cost: {lowest_cost}')
-  return neighbour_with_lowest_cost
-
-
 
 def closest_food_item(coordinate: Tuple[int, int], food: List[Tuple[int,int]]) -> Tuple[int, int]:
   minimum_distance = float('inf')
