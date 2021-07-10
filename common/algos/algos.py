@@ -94,6 +94,10 @@ def a_star(start: Tuple[int,int], goal: Tuple[int, int], hazards: List[Tuple[int
     raise Exception('No valid path found')
 
 
+
+
+
+
 # Testing purposes
 
 if __name__ == '__main__':

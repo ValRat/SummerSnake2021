@@ -21,3 +21,9 @@ def in_bigger_snake_striking_range(coordinate: Tuple[int, int], me: Snake, board
     bigger_snakes_potential_space_array = map(lambda x : get_all_neighbours(x.head), bigger_snakes)
     bigger_snakes_potential_space: List[Tuple[int, int]] = [item for sublist in bigger_snakes_potential_space_array for item in sublist]
     return coordinate in bigger_snakes_potential_space
+
+# Gives a score evaluation on how good the current state is for
+# the given snake
+def evaluate(me: Snake, board: Board) -> int:
+    return 100
+

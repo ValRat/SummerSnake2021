@@ -2,7 +2,7 @@ import random
 from typing import List, Tuple, Callable
 
 from common.game_objects import Game, Snake, Board, Direction
-from common.algos import a_star
+from common.algos.algos import a_star
 from common.point_utils import get_all_valid_neighbours, get_manhattan_distance, get_all_neighbours
 from common.heuristics import is_edge, in_hazard_sauce, in_bigger_snake_striking_range
 
@@ -56,7 +56,7 @@ def move_to_valid(me: Snake, board: Board) -> str:
   neighbours = get_all_valid_neighbours(head_coordinate, hazards, board.height, board.width)
 
   # target = find_best_open_space(neighbours, heuristic) if me.health > 50 else best_food_heuristic(me, board)
-  target = best_food_heuristic(me, board)
+  target = target_heuristic(me, board)
   next_step = (0, 0)
 
   try: 
@@ -74,7 +74,7 @@ def move_to_valid(me: Snake, board: Board) -> str:
 
   return get_direction(head_coordinate, next_step)
 
-def best_food_heuristic(me: Snake, board: Board) -> Tuple[int, int]:
+def target_heuristic(me: Snake, board: Board) -> Tuple[int, int]:
   if me.health < 30: 
 
     # Avoid food that is in the hazard sauce
@@ -119,7 +119,6 @@ def prune_obstacles(coordinates: List[Tuple[int, int]], obstacles: List[Tuple[in
   def clear(coord: Tuple[int, int]):
     return coord not in obstacles
   return list(filter(clear, coordinates))
-
 
 # Valid except for diagonals
 # 0,0 defined as bottom left corner

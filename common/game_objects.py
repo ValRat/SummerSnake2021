@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import List
+from typing import List, Tuple
 
 class Game:
 
@@ -10,7 +10,7 @@ class Game:
 
 class Snake:
 
-  def __init__(self, id, name, health, body, latency, head, length, shout, squad = None):
+  def __init__(self, id, name, health, body: List[Tuple[int, int]], latency, head, length, shout, squad = None):
     self.id = id
     self.name = name
     self.health = health
@@ -28,7 +28,7 @@ class Snake:
 
 class Board: 
 
-  def __init__(self, height, width, food, hazards, snakes):
+  def __init__(self, height, width, food: List[Tuple[int, int]], hazards, snakes: List[Snake]):
     self.height = height
     self.width = width
     self.food = food
