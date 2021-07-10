@@ -1,40 +1,60 @@
-from typing import Tuple
+from typing import Tuple, List
 from copy import deepcopy
 
 from common.game_objects import Board, Snake
 from common.point_utils import get_all_neighbours
 
 
-# Emulates the game engine
-def updateState(board: Board, snake: Snake, move: Tuple[int, int], validate: bool = True) -> Board:
+# Emulates the game engine, with respect to only one snake - this enables a simpler implementation
+# for the multi-minimax algorithm. Since it operates off of Best Reply Search that allows 
+# a single opponent to act. This means that the updateStateSingle result can be inconsistent with the 
+# "correct" state of the board.
+def updateStateSingle(board: Board, snake: Snake, move: Tuple[int, int], validate: bool = True) -> Board:
   next_state = deepcopy(board)
 
   if validate:
     if not isMoveValid(board, snake, move):
       raise Exception('Invalid move for board')
   
+  # Apply snake's chosen move
   board_snake_ref = list(filter(lambda x: x.name == snake.name, board.snakes))[0]
   board_snake_ref.head = move
   board_snake_ref.body.insert(0, move)
 
-
-  # Reduce snake length from tail if we didn't eat with the move
-  # TODO: Find the cost for each movement and the cost for being in hazard zone
+  # Handle food consumption
   if move not in board.food:
     board_snake_ref.body.pop() 
-    board_snake_ref.health -= 5 
+    board_snake_ref.health -= 1
     if move in board.hazards:
       board_snake_ref.health -= 15
   else:
     board.food.remove(move)
     board_snake_ref.health = 100
   
+  # Place any new food (not implemented in this case)
+
+  # Eliminate any snakes that's been eliminated or removed
+  # Since only one snake is modified, we only need 
+  # to check whether our snake has been wiped.
+  isDead = isOutOfBound(board, move) or isCollidedWithSelf(snake)
+
+
   # Need to program logic for: 
-  # - the case of when the snake collide with walls
-  # - the case of when the snake collides with other snakes
-  # - the case when snake runs out of HP
+  # - the case of when the snake collides head to head
+  # - the case when the snake collide with another snake's body
 
   return next_state
+
+def isOutOfHealth(snake: Snake) -> bool:
+  return snake.health <= 0
+
+def isCollidedWithSelf(snake: Snake) -> bool:
+  # Check for duplicates in body coordinates
+  return len(set(snake.body)) != len(snake.body)
+
+def isCollidedWithAnother(snake: Snake, others: List[Snake]) -> bool:
+  # The head is a special case, we evaluate it in another manner
+  return False
 
 
 def isMoveValid(board: Board, snake: Snake, move: Tuple[int, int]) -> bool:
